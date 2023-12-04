@@ -120,6 +120,9 @@ export const login = async (
       if (err) {
         return next(err);
       }
+      res.cookie('jwt', token, {
+        httpOnly: true,
+      });
       return ResponseHandler.success(
         res,
         { userId: userWithoutPassword.id, token },
@@ -209,6 +212,20 @@ export const oauthToken = async (
     return next(error);
   }
 };
+
+export const setCookie = (req:Request, res: Response) => {
+  const secretOrKey = process.env.JWT_SECRET;
+
+  const token = generateToken(req.user as CustomUser)
+
+  // Set the JWT as a cookie
+  res.cookie('jwt', token, {
+    httpOnly: true,
+  });
+
+  // Redirect or send a response as needed
+  res.redirect("https://evento1.vercel.app/event-dashboard");
+}
 
 // otp verification
 const generateRandomBase32 = () => {

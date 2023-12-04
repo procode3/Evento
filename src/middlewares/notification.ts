@@ -6,13 +6,27 @@ import createSubscriber from "pg-listen";
 import "dotenv/config";
 
 
-const postgresNotificationMiddleware = (app) => {
-  const io = new SocketIoServer(app);
-
+const pgNotify = (io) => {
+  
   // Connect to PostgreSQL
   pgClient.connect().then(() => {
     console.log("Connected to Postgres");
     const subscriber = createSubscriber({ connectionString: process.env.DATABASE_URL+`?ssl=true` })
+
+    io.on('connection', (socket) => {
+        console.log(`${"No one"} has connected`);
+
+        //check logged in user on socket.request.user
+        console.log(socket?.passport);
+
+        socket.on('disconnect', () => {
+            console.log('user disconnected');
+        });
+
+        socket.on('userId', (userId) => {
+            console.log('user id is', userId);
+        });
+    });
   
   subscriber.notifications.on("new_event", (payload) => {
     console.log("Row added!", payload);
@@ -38,19 +52,14 @@ const postgresNotificationMiddleware = (app) => {
 }).catch((err) => {
   console.error(err);
 });
-  
 
-  // Set up PostgreSQL listener
-  
-
-  // Attach WebSocket server to Express app
-    // io.attach(app);
-
-  // Middleware function
   return (req, res, next) => {
     req.io = io; // Make io accessible in routes
+    
     next();
   };
 };
 
-export {postgresNotificationMiddleware};
+
+
+export {pgNotify};

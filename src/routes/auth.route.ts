@@ -8,6 +8,7 @@ import {
   verifyOTP,
   validateOTP,
   disableOTP,
+  setCookie,
 } from "../controllers/auth.controller";
 import { authenticateJWT } from "../middlewares/auth";
 import passport from "../utils/passport";
@@ -125,6 +126,7 @@ router.post("/register", register);
 router.post("/login", login);
 
 router.get("/login", (req, res) => {
+  console.log(req.user);
   res.send("Login page");
 });
 
@@ -156,7 +158,8 @@ router.get(
   passport.authenticate("google", {
     successRedirect: "https://evento1.vercel.app/event-dashboard",
     failureRedirect: "https://evento1.vercel.app/",
-  })
+  }, 
+  setCookie)
 );
 
 /**
